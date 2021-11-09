@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta
+      charset="utf-8"
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+    <title>LIFF Starter</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://static.line-scdn.net/liff/edge/versions/2.16.0/sdk.js"></script>
+    <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+  </head>
+
+  <body>
+    <div id="profileinfo">
+      <h2>Profile</h2>
+      <div id="profilepicturediv"></div>
+      <table border="1">
+        <tr>
+          <th>image</th>
+          <td id="image"></td>
+        </tr>
+        <tr>
+          <th>userId</th>
+          <td id="userId"></td>
+        </tr>
+        <tr>
+          <th>displayName</th>
+          <td id="displayName"></td>
+        </tr>
+        <tr>
+          <th>statusMessage</th>
+          <td id="statusMessage"></td>
+        </tr>
+        <tr>
+          <th>email</th>
+          <td id="email"></td>
+        </tr>
+      </table>
+      <div class="buttongroup">
+        <div class="buttonrow">
+          <button id="closewindowbutton" onclick="closeLiff()">
+            Close Window
+          </button>
+          <button id="sharewindowbutton" onclick="shareLine()">
+            Share Line
+          </button>
+          <button id="scanwindowbutton" onclick="scanQRCode()">QR Scan</button>
+          <button id="openwindowbutton" onclick="saveValue()">
+            Save Value
+          </button>
+        </div>
+      </div>
+    </div>
+    <script src="liff.js"></script>
+    <script>
+      let newLiff = new liffHelper();
+      let liffId = "1653792390-jyAvAmNL";
+      let url =
+        "https://2c10-2405-9800-bc01-ba08-5178-c45e-3a0f-391f.ngrok.io/lineliff/";
+      let token = "";
+      let profile = {};
+      let messages = [
+        {
+          type: "text",
+          text: "ทดสอบแชร์ข้อความ",
+        },
+      ];
+      async function start() {
+        try {
+          let rs = await newLiff.getUserProfile(liffId);
+          profile = rs;
+          $("#image").prepend(`<img id="theImg" src="${rs.pictureUrl}" />`);
+          $("#userId").html(rs.userId);
+          $("#displayName").html(rs.displayName);
+          $("#statusMessage").html(rs.statusMessage ? rs.statusMessage : "-");
+          $("#email").html(rs.email);
+          token = rs.token;
+          console.log(rs);
+        } catch (err) {
+          console.log(err);
+        }
+      }
+      async function saveValue() {
+        $.ajax({
+          type: "POST",
+          url: "user.php",
+          data: {
+            lineId: profile.userId,
+            img: profile.pictureUrl,
+            name: profile.displayName,
+            status: profile.statusMessage ? profile.statusMessage : null,
+            action: "insert",
+          },
+          success: function (response) {
+            alert(response);
+          },
+        });
+      }
+      async function shareLine() {
+        let rs = await newLiff.targetPicker(messages);
+        if (rs) {
+          alert("แชร์สำเร็จแล้ว");
+        }
+      }
+      async function scanQRCode() {
+        let rs = await newLiff.scanQRLiff();
+        if (rs) {
+          alert(rs.value);
+        }
+      }
+      async function closeLiff() {
+        await newLiff.closeWindow();
+      }
+      start();
+    </script>
+  </body>
+</html>
