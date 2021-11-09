@@ -54,8 +54,10 @@
       </div>
     </div>
     <script src="liff.js"></script>
+    <script src="device.js"></script>
     <script>
-      let newLiff = new liffHelper();
+      let newLiff = new LiffHelper();
+      let newDevice = new Device();
       let liffId = "YOUR-LIFF-ID";
       let token = "";
       let profile = {};
@@ -66,18 +68,24 @@
         },
       ];
       async function start() {
-        try {
-          let rs = await newLiff.getUserProfile(liffId);
-          profile = rs;
-          $("#image").prepend(`<img id="theImg" src="${rs.pictureUrl}" />`);
-          $("#userId").html(rs.userId);
-          $("#displayName").html(rs.displayName);
-          $("#statusMessage").html(rs.statusMessage ? rs.statusMessage : "-");
-          $("#email").html(rs.email);
-          token = rs.token;
-          console.log(rs);
-        } catch (err) {
-          console.log(err);
+        console.log(newDevice.checkMobile());
+        if (!newDevice.checkLine() && newDevice.checkMobile()) {
+          $("#profileinfo").html("")
+          window.location = `line://app/${liffId}`;
+        } else {
+          try {
+            let rs = await newLiff.getUserProfile(liffId);
+            profile = rs;
+            $("#image").prepend(`<img id="theImg" src="${rs.pictureUrl}" />`);
+            $("#userId").html(rs.userId);
+            $("#displayName").html(rs.displayName);
+            $("#statusMessage").html(rs.statusMessage ? rs.statusMessage : "-");
+            $("#email").html(rs.email);
+            token = rs.token;
+            console.log(rs);
+          } catch (err) {
+            console.log(err);
+          }
         }
       }
       async function saveValue() {

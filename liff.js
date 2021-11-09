@@ -2,7 +2,7 @@ const liff = window.liff;
 let isInitLiff = false;
 let userProfile = {};
 
-class liffHelper {
+class LiffHelper {
     init(liffId) {
         return new Promise((resolve, reject) => {
             if (!isInitLiff) {
